@@ -25,7 +25,7 @@ Snake* CreateSnake(short x, short y) {
 }
 
 void GrowSnake(Snake* snake) {
-    snake_block_t* growth = CreateSnakeBlock(snake->tail->x, snake->tail->y);
+    snake_block_t* growth = CreateSnakeBlock(snake->tail->x, snake->tail->y+32);
     snake->tail->next = growth;
     snake->tail = growth;
 }
@@ -43,4 +43,16 @@ void DrawSnake(snake_block_t* head) {
         DrawTexture(snake, block->x, block->y, WHITE);
         block = block->next;
     }
+}
+
+void MoveSnake(Snake* snake) {
+    snake_block_t* body_piece = snake->head;
+    while (body_piece != NULL) {
+        body_piece->y -= 32;
+        body_piece = body_piece->next;
+    }
+}
+
+void MoveToHead(Snake* snake) {
+    snake->current = snake->head;
 }

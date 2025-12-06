@@ -29,3 +29,4 @@ extern void DrawSnake(snake_block_t* head);
 extern void FreeSnake(snake_block_t* head);
 extern void GrowSnake(Snake* snake);
 extern Snake* CreateSnake(short x, short y);
+extern void MoveSnake(Snake* snake);

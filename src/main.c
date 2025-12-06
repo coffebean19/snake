@@ -16,6 +16,10 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 int main ()
 {
 	Snake* snake = CreateSnake(432, 232);
+	GrowSnake(snake);
+	GrowSnake(snake);
+	GrowSnake(snake);
+	GrowSnake(snake);
 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -43,8 +47,25 @@ int main ()
 		DrawText("Hello Raylib", 200,200,20,WHITE);
 
 		// draw our texture to the screen
+		if (IsKeyDown('A') || IsKeyDown('a')) {
+			DrawText("a", 400, 150, 20, WHITE);
+		}
+		if (IsKeyDown('S') || IsKeyDown('s')) {
+			DrawText("s", 400, 150, 20, WHITE);
+			
+		}
+		if (IsKeyDown('D') || IsKeyDown('d')) {
+			DrawText("d", 400, 150, 20, WHITE);
+			
+		}
+		if (IsKeyDown('W') || IsKeyDown('w')) {
+			DrawText("w", 400, 150, 20, WHITE);
+			MoveSnake(snake);
+		}
 
 		DrawSnake(snake->head);
+
+
 
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
