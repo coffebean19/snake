@@ -13,13 +13,21 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 
 #include "snake.h"
 
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 int main ()
 {
+	Direction current_direction = UP; 
+	SetTargetFPS(60);
+
 	Snake* snake = CreateSnake(432, 232);
 	GrowSnake(snake);
 	GrowSnake(snake);
 	GrowSnake(snake);
 	GrowSnake(snake);
+	snake->head->direction = RIGHT;
 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -33,7 +41,7 @@ int main ()
 
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	
+	char text_FPS[2];
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
@@ -60,14 +68,15 @@ int main ()
 		}
 		if (IsKeyDown('W') || IsKeyDown('w')) {
 			DrawText("w", 400, 150, 20, WHITE);
-			MoveSnake(snake);
 		}
+		MoveSnake(snake);
 
 		DrawSnake(snake->head);
 
 
 
-		
+		sprintf(text_FPS, "%d", GetFPS());
+		DrawText(text_FPS, 150, 200, 20, WHITE);
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
 	}

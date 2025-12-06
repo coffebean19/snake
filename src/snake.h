@@ -3,7 +3,7 @@ typedef enum direction {
     DOWN,
     LEFT,
     RIGHT
-} direction;
+} Direction;
 
 typedef enum snake_block {
     HEAD,
@@ -15,6 +15,7 @@ typedef struct snake_block_t{
     short x;
     short y;
     snake_block block;
+    Direction direction;
     struct snake_block_t * next;  
 } snake_block_t;
 
@@ -24,7 +25,7 @@ typedef struct Snake {
     snake_block_t* current;
 } Snake;
 
-extern snake_block_t* CreateSnakeBlock(short x, short y);
+// extern snake_block_t* CreateSnakeBlock(short x, short y,);
 extern void DrawSnake(snake_block_t* head);
 extern void FreeSnake(snake_block_t* head);
 extern void GrowSnake(Snake* snake);
