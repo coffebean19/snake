@@ -55,8 +55,12 @@ void DrawSnake(snake_block_t* head) {
 
 
 // TODO: Add direction. Snake's body needs to move as a snake yk
+
 void MoveSnake(Snake* snake) {
+
     snake_block_t* body_piece = snake->head;
+    Direction cur_dir = body_piece->direction;
+    Direction prev_dir = body_piece -> direction;
     while (body_piece != NULL) {
         switch (body_piece->direction) {
             case UP:
@@ -64,21 +68,21 @@ void MoveSnake(Snake* snake) {
                 break;            
             case DOWN:
                 body_piece->y += 32;
-                break;
+                break;        
             case LEFT:
-                body_piece->x -=32;
-                break;
+                body_piece->x -= 32;
+                break;        
             case RIGHT:
                 body_piece->x += 32;
-                break;
-            default:
-                break;
+                break;        
         }
-        if (body_piece->next != NULL) {
-            body_piece->next->direction = body_piece->direction;
-            body_piece = body_piece->next;
-        }
+        cur_dir = body_piece->direction;
+        body_piece->direction = prev_dir;
+        prev_dir = cur_dir;
+        body_piece = body_piece->next;
     }
+
+
 }
 
 void MoveToHead(Snake* snake) {
