@@ -12,6 +12,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 
 #include "snake.h"
+#include "nibbles.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 int main ()
 {
 	Direction current_direction = UP; 
-	SetTargetFPS(60);
+	SetTargetFPS(10);
 
 	Snake* snake = CreateSnake(432, 232);
 	GrowSnake(snake);
@@ -28,6 +29,11 @@ int main ()
 	GrowSnake(snake);
 	GrowSnake(snake);
 	snake->head->direction = RIGHT;
+
+	Nibble *nibble1 = CreateNibble(500,500);
+	Nibble *nibble2 = CreateNibble(600,600);
+	Nibble *nibble3 = CreateNibble(700,700);
+	Nibble *nibble4 = CreateNibble(800,650);
 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -42,9 +48,28 @@ int main ()
 	// Load a texture from the resources directory
 	Texture wabbit = LoadTexture("wabbit_alpha.png");
 	char text_FPS[2];
+	char delta_time[10];
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
+		sprintf(delta_time, "%.2f", GetFrameTime()); 
+		sprintf(text_FPS, "%d", GetFPS());
+		MoveSnake(snake);
+		if (IsKeyDown('A') || IsKeyDown('a')) {
+			current_direction = LEFT;
+		}
+		if (IsKeyDown('S') || IsKeyDown('s')) {
+			current_direction = DOWN;
+		}
+		if (IsKeyDown('D') || IsKeyDown('d')) {
+			current_direction = RIGHT;
+		}
+		if (IsKeyDown('W') || IsKeyDown('w')) {
+			current_direction = UP;
+		}
+
+		ChangeDirection(snake, current_direction);
+
 		// drawing
 		BeginDrawing();
 
@@ -60,25 +85,25 @@ int main ()
 		}
 		if (IsKeyDown('S') || IsKeyDown('s')) {
 			DrawText("s", 400, 150, 20, WHITE);
-			
 		}
 		if (IsKeyDown('D') || IsKeyDown('d')) {
 			DrawText("d", 400, 150, 20, WHITE);
-			
 		}
 		if (IsKeyDown('W') || IsKeyDown('w')) {
 			DrawText("w", 400, 150, 20, WHITE);
 		}
-		MoveSnake(snake);
 
 		DrawSnake(snake->head);
+		DrawNibble(nibble1);
+		DrawNibble(nibble2);
+		DrawNibble(nibble3);
+		DrawNibble(nibble4);
 
-
-
-		sprintf(text_FPS, "%d", GetFPS());
 		DrawText(text_FPS, 150, 200, 20, WHITE);
+		DrawText(delta_time, 150, 220, 20, WHITE);
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
+		// WaitTime(0.2);
 	}
 
 	// cleanup

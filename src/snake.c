@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "raylib.h"
 #include "snake.h"
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#include "raylib.h"
 
 
 
@@ -53,11 +53,7 @@ void DrawSnake(snake_block_t* head) {
     }
 }
 
-
-// TODO: Add direction. Snake's body needs to move as a snake yk
-
 void MoveSnake(Snake* snake) {
-
     snake_block_t* body_piece = snake->head;
     Direction cur_dir = body_piece->direction;
     Direction prev_dir = body_piece -> direction;
@@ -87,4 +83,10 @@ void MoveSnake(Snake* snake) {
 
 void MoveToHead(Snake* snake) {
     snake->current = snake->head;
+}
+
+void ChangeDirection(Snake* snake, Direction dir) {
+    if (snake->head->direction != dir) {
+        snake->head->direction = dir;
+    }
 }
