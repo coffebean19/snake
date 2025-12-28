@@ -18,8 +18,12 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <time.h>
+
+#define MAX_NIBBLES 10
 
 static Direction current_direction = UP;
+static Nibble* nibbles[MAX_NIBBLES];
 
 void* inputThread(void* args) {
 	// Direction current_direction = UP; 
@@ -41,12 +45,33 @@ void* inputThread(void* args) {
 	return NULL;
 }
 
+void* nibbleSpawnThread(void* args) {
+	srand((unsigned int)time(NULL));
+
+	int x = 0;
+	int y = 0;
+	while (1) {
+		x = rand() % 1200;
+		y = rand() % 800;
+		for (int i = 0; i < MAX_NIBBLES; i++) {
+			if (nibbles[i] == NULL) {
+				nibbles[i] = CreateNibble(x, y);
+				break;
+			}
+		}
+		WaitTime(2.0);
+	}
+}
+
 int main ()
 {
+
 	pthread_t input_thread;
+	pthread_t nibbles_thread;
 
 	// Start input thread
 	pthread_create(&input_thread, NULL, inputThread, NULL);
+	pthread_create(&nibbles_thread, NULL, nibbleSpawnThread, NULL);
 
 	SetTargetFPS(60);
 
@@ -56,6 +81,7 @@ int main ()
 	GrowSnake(snake);
 	GrowSnake(snake);
 	snake->head->direction = RIGHT;
+
 
 	Nibble *nibble1 = CreateNibble(342,512);
 	Nibble *nibble2 = CreateNibble(600,600);
@@ -74,6 +100,7 @@ int main ()
 
 	char text_FPS[2];
 	char delta_time[10];
+	char nibbles_pos[50];
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
@@ -105,10 +132,16 @@ int main ()
 		}
 
 		DrawSnake(snake->head);
-		DrawNibble(nibble1);
-		DrawNibble(nibble2);
-		DrawNibble(nibble3);
-		DrawNibble(nibble4);
+
+		for (int i = 0; i < MAX_NIBBLES; i++) {
+			if (nibbles[i] != NULL) {
+				DrawNibble(nibbles[i]);
+				sprintf(nibbles_pos, "Exists: true (%d, %d)", nibbles[i]->x, nibbles[i]->y);
+				DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
+			} else {
+				DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
+			}
+		}
 
 		DrawText(text_FPS, 150, 200, 20, WHITE);
 		DrawText(delta_time, 150, 220, 20, WHITE);
