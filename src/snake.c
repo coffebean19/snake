@@ -77,8 +77,6 @@ void MoveSnake(Snake* snake) {
         prev_dir = cur_dir;
         body_piece = body_piece->next;
     }
-
-
 }
 
 void MoveToHead(Snake* snake) {
@@ -86,6 +84,12 @@ void MoveToHead(Snake* snake) {
 }
 
 void ChangeDirection(Snake* snake, Direction dir) {
+    if ((snake->head->direction == UP && dir == DOWN) 
+            || (snake->head->direction == DOWN && dir == UP) 
+            || (snake->head->direction == RIGHT && dir == LEFT)
+            || (snake->head->direction == LEFT && dir == RIGHT)) {
+        return;
+    }
     if (snake->head->direction != dir) {
         snake->head->direction = dir;
     }
