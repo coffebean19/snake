@@ -17,20 +17,47 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
+
+static Direction current_direction = UP;
+
+void* inputThread(void* args) {
+	// Direction current_direction = UP; 
+	while (1) {
+
+		if (IsKeyDown('A') || IsKeyDown('a')) {
+			current_direction = LEFT;
+		}
+		if (IsKeyDown('S') || IsKeyDown('s')) {
+			current_direction = DOWN;
+		}
+		if (IsKeyDown('D') || IsKeyDown('d')) {
+			current_direction = RIGHT;
+		}
+		if (IsKeyDown('W') || IsKeyDown('w')) {
+			current_direction = UP;
+		}
+	}
+	return NULL;
+}
 
 int main ()
 {
-	Direction current_direction = UP; 
-	SetTargetFPS(10);
+	pthread_t input_thread;
 
-	Snake* snake = CreateSnake(432, 232);
+	// Start input thread
+	pthread_create(&input_thread, NULL, inputThread, NULL);
+
+	SetTargetFPS(60);
+
+	Snake* snake = CreateSnake(320, 320);
 	GrowSnake(snake);
 	GrowSnake(snake);
 	GrowSnake(snake);
 	GrowSnake(snake);
 	snake->head->direction = RIGHT;
 
-	Nibble *nibble1 = CreateNibble(500,500);
+	Nibble *nibble1 = CreateNibble(342,512);
 	Nibble *nibble2 = CreateNibble(600,600);
 	Nibble *nibble3 = CreateNibble(700,700);
 	Nibble *nibble4 = CreateNibble(800,650);
@@ -45,8 +72,6 @@ int main ()
 	SearchAndSetResourceDir("resources");
 	Texture snake_texture = LoadTexture("snake-block.png");
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
 	char text_FPS[2];
 	char delta_time[10];
 	// game loop
@@ -55,19 +80,6 @@ int main ()
 		sprintf(delta_time, "%.2f", GetFrameTime()); 
 		sprintf(text_FPS, "%d", GetFPS());
 		MoveSnake(snake);
-		if (IsKeyDown('A') || IsKeyDown('a')) {
-			current_direction = LEFT;
-		}
-		if (IsKeyDown('S') || IsKeyDown('s')) {
-			current_direction = DOWN;
-		}
-		if (IsKeyDown('D') || IsKeyDown('d')) {
-			current_direction = RIGHT;
-		}
-		if (IsKeyDown('W') || IsKeyDown('w')) {
-			current_direction = UP;
-		}
-
 		ChangeDirection(snake, current_direction);
 
 		// drawing
@@ -77,20 +89,19 @@ int main ()
 		ClearBackground(BLACK);
 
 		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
+		DrawText("Snake game", 10,10,20,WHITE);
 
-		// draw our texture to the screen
 		if (IsKeyDown('A') || IsKeyDown('a')) {
-			DrawText("a", 400, 150, 20, WHITE);
+			DrawText("a", 200, 10, 20, WHITE);
 		}
 		if (IsKeyDown('S') || IsKeyDown('s')) {
-			DrawText("s", 400, 150, 20, WHITE);
+			DrawText("s", 200, 10, 20, WHITE);
 		}
 		if (IsKeyDown('D') || IsKeyDown('d')) {
-			DrawText("d", 400, 150, 20, WHITE);
+			DrawText("d", 200, 10, 20, WHITE);
 		}
 		if (IsKeyDown('W') || IsKeyDown('w')) {
-			DrawText("w", 400, 150, 20, WHITE);
+			DrawText("w", 200, 10, 20, WHITE);
 		}
 
 		DrawSnake(snake->head);
@@ -103,12 +114,11 @@ int main ()
 		DrawText(delta_time, 150, 220, 20, WHITE);
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
-		// WaitTime(0.2);
+		WaitTime(0.1);
 	}
 
 	// cleanup
 	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
 	UnloadTexture(snake_texture);
 	FreeSnake(snake->head);
 
