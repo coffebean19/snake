@@ -1,3 +1,4 @@
+#include "raylib.h"
 #include "snake.h"
 #include "resource_dir.h"	
 #include "nibbles.h"
@@ -19,4 +20,13 @@ void DrawNibble(Nibble* nibble) {
     // Texture nibble_img = LoadTexture("food.png");
     // DrawTexture(nibble_img, nibble->x, nibble->y, WHITE);
     DrawRectangle(nibble->x, nibble->y, 33, 33, RED);
+}
+
+Rectangle DeriveNibbleRec(const Nibble *nibble) {
+    return (Rectangle) {
+        (float)(nibble-> x),
+        (float)(nibble-> y),
+        32.0f,
+        32.0f
+    };
 }

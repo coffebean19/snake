@@ -1,7 +1,9 @@
+#include "raylib.h"
 typedef struct Nibble {
-    short x;
-    short y;
+    int x;
+    int y;
 } Nibble;
 
 extern Nibble* CreateNibble(short x, short y);
 extern void DrawNibble(Nibble* nibble);
+extern Rectangle DeriveNibbleRec(const Nibble *nibble);

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "snake.h"
@@ -15,6 +16,7 @@ snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
     new_block->x=x;
     new_block->y=y;
     new_block->direction=direction;
+
     return new_block;
 }
 
@@ -95,4 +97,13 @@ void ChangeDirection(Snake* snake, Direction dir) {
     if (snake->head->direction != dir) {
         snake->head->direction = dir;
     }
+}
+
+Rectangle DeriveSnakeHeadRec(const Snake *snake) {
+    return (Rectangle) {
+        (float)(snake->head->x),
+        (float)(snake->head->y),
+        32.0f,
+        32.0f
+    };
 }

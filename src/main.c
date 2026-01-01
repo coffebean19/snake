@@ -26,6 +26,7 @@ https://creativecommons.org/publicdomain/zero/1.0/
 static Direction current_direction = UP;
 static Nibble *nibbles[MAX_NIBBLES];
 static bool paused = false;
+static Color grid_line_white = {255, 255, 255, 100};
 
 void *inputThread(void *args) {
   // Direction current_direction = UP;
@@ -59,8 +60,8 @@ void *nibbleSpawnThread(void *args) {
     if (!paused) {
       x = rand() % 1280;
       y = rand() % 800;
-	  x = x - (x % 32) - 1;
-	  y = y - (y % 32) - 1;
+      x = x - (x % 32) - 1;
+      y = y - (y % 32) - 1;
       for (int i = 0; i < MAX_NIBBLES; i++) {
         if (nibbles[i] == NULL) {
           nibbles[i] = CreateNibble(x, y);
@@ -73,17 +74,29 @@ void *nibbleSpawnThread(void *args) {
 }
 
 void DrawGridLines() {
-  int grid_line_pos = 0;
-    while (grid_line_pos < GetScreenHeight()) {
-      DrawLine(0, grid_line_pos, GetScreenWidth(), grid_line_pos, WHITE);
-      grid_line_pos += 32;
-    }
+  float grid_line_pos = 0.0f;
+  while (grid_line_pos < GetScreenHeight()) {
+    DrawLineEx((Vector2){0.0f, grid_line_pos},
+               (Vector2){(float)GetScreenWidth(), grid_line_pos}, 1.0f,
+               grid_line_white);
+    grid_line_pos += 32.0f;
+  }
 
-    grid_line_pos = 0;
-    while (grid_line_pos < GetScreenWidth()) {
-      DrawLine(grid_line_pos, 0, grid_line_pos, GetScreenHeight(), WHITE);
-      grid_line_pos += 32;
-    }
+  grid_line_pos = 0.0f;
+  while (grid_line_pos < GetScreenWidth()) {
+    DrawLineEx((Vector2){grid_line_pos, 0},
+               (Vector2){grid_line_pos, (float)GetScreenHeight()}, 1.0f,
+               grid_line_white);
+    grid_line_pos += 32.0f;
+  }
+}
+
+bool EatNibble(Snake *snake, Nibble *nibble) {
+  if (!snake || !snake->head || !nibble) {
+    return false;
+  }
+
+  return (CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
 }
 
 int main() {
@@ -101,7 +114,6 @@ int main() {
   GrowSnake(snake);
   GrowSnake(snake);
   snake->head->direction = RIGHT;
-
 
   // Tell the window to use vsync and work on high DPI displays
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -127,6 +139,15 @@ int main() {
     if (!paused) {
       MoveSnake(snake);
       ChangeDirection(snake, current_direction);
+    }
+
+    for (int i = 0; i < MAX_NIBBLES; i++) {
+      if (nibbles[i] != NULL) {
+        if (EatNibble(snake, nibbles[i])) {
+          GrowSnake(snake);
+          break;
+        }
+      }
     }
 
     // drawing

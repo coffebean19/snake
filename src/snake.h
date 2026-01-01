@@ -1,3 +1,4 @@
+#include "raylib.h"
 typedef enum direction {
     UP,
     DOWN,
@@ -12,8 +13,8 @@ typedef enum snake_block {
 } snake_block;
 
 typedef struct snake_block_t{
-    short x;
-    short y;
+    int x;
+    int y;
     snake_block block;
     Direction direction;
     struct snake_block_t * next;  
@@ -32,3 +33,4 @@ extern void GrowSnake(Snake* snake);
 extern Snake* CreateSnake(short x, short y);
 extern void MoveSnake(Snake* snake);
 extern void ChangeDirection(Snake* snake, Direction dir);
+Rectangle DeriveSnakeHeadRec(const Snake *snake);
