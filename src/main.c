@@ -46,7 +46,7 @@ void *inputThread(void *args) {
     if (IsKeyDown(KEY_W)) {
       current_direction = UP;
     }
-    if (IsKeyDown(KEY_P)) {
+    if (IsKeyPressed(KEY_P)) {
       paused = !paused;
     }
   }
@@ -109,7 +109,7 @@ int main() {
 
   // Start input thread
   pthread_create(&input_thread, NULL, inputThread, NULL);
-  SetTargetFPS(10);
+  SetTargetFPS(60);
 
   Snake *snake = CreateSnake(320, 320);
   GrowSnake(snake);
@@ -196,12 +196,11 @@ int main() {
     DrawText(text_FPS, 150, 200, 20, WHITE);
     DrawText(delta_time, 150, 220, 20, WHITE);
     if (paused) {
-      DrawText("PAUSED", GetScreenWidth()/2 - 140, GetScreenHeight()/2 - 80, 80, WHITE);
+      DrawText("PAUSED", GetScreenWidth()/2 - 140, GetScreenHeight()/2 - 80, 120, WHITE);
     }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)
     EndDrawing();
-    WaitTime(0.1);
   }
 
   // cleanup

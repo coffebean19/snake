@@ -5,7 +5,9 @@
 #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "raylib.h"
 
+#define SNAKE_MOVE_INTERVAL 0.2f
 
+float snakeMoveTimer = 0.0f;
 
 snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
     snake_block_t * new_block = (snake_block_t*)malloc(sizeof(snake_block_t));
@@ -71,6 +73,15 @@ void DrawSnake(snake_block_t* head) {
 }
 
 void MoveSnake(Snake* snake) {
+
+    snakeMoveTimer += GetFrameTime();
+
+    if (snakeMoveTimer < SNAKE_MOVE_INTERVAL) {
+        return;
+    }
+
+    snakeMoveTimer = 0.0f;
+
     int speed = 32;
     snake_block_t* body_piece = snake->head;
     Direction cur_dir = body_piece->direction;
