@@ -43,33 +43,35 @@ void FreeSnake(snake_block_t* head) {
 }
 
 void DrawSnake(snake_block_t* head) {
-    SearchAndSetResourceDir("resources");
-	Texture snake = LoadTexture("snake-block.png");
+    // SearchAndSetResourceDir("resources");
+	// Texture snake = LoadTexture("snake-block.png");
 
     snake_block_t* block = head;
     while (block != NULL) {
-        DrawTexture(snake, block->x, block->y, WHITE);
+        // DrawTexture(snake, block->x, block->y, WHITE);
+        DrawRectangle(block->x, block->y, 32, 32, WHITE);
         block = block->next;
     }
 }
 
 void MoveSnake(Snake* snake) {
+    int speed = 32;
     snake_block_t* body_piece = snake->head;
     Direction cur_dir = body_piece->direction;
     Direction prev_dir = body_piece -> direction;
     while (body_piece != NULL) {
         switch (body_piece->direction) {
             case UP:
-                body_piece->y -= 32;
+                body_piece->y -= speed;
                 break;            
             case DOWN:
-                body_piece->y += 32;
+                body_piece->y += speed;
                 break;        
             case LEFT:
-                body_piece->x -= 32;
+                body_piece->x -= speed;
                 break;        
             case RIGHT:
-                body_piece->x += 32;
+                body_piece->x += speed;
                 break;        
         }
         cur_dir = body_piece->direction;
