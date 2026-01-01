@@ -4,6 +4,7 @@ typedef struct Nibble {
     int y;
 } Nibble;
 
-extern Nibble* CreateNibble(short x, short y);
+extern Nibble* CreateNibble(int x, int y);
 extern void DrawNibble(Nibble* nibble);
-extern Rectangle DeriveNibbleRec(const Nibble *nibble);
+extern Rectangle DeriveNibbleRec(const Nibble* nibble);
+void DestroyNibble(Nibble* nibble);

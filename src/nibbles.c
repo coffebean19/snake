@@ -4,16 +4,17 @@
 #include "nibbles.h"
 #include <stdlib.h>
 
-Nibble* CreateNibble(short x, short y) {
+Nibble* CreateNibble(int x, int y) {
     Nibble* new_nibble = (Nibble*)malloc(sizeof(Nibble));
+    if (!new_nibble) { // check for if malloc fails
+        return NULL;
+    }
+
     new_nibble->x =x;
     new_nibble->y =y;
     return new_nibble;
 }
 
-void NibbleEaten() {
-
-}
 
 void DrawNibble(Nibble* nibble) {
     // SearchAndSetResourceDir("resources");
@@ -29,4 +30,8 @@ Rectangle DeriveNibbleRec(const Nibble *nibble) {
         32.0f,
         32.0f
     };
+}
+
+void DestroyNibble(Nibble* nibble) {
+    free(nibble);
 }

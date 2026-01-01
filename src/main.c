@@ -22,11 +22,13 @@ https://creativecommons.org/publicdomain/zero/1.0/
 #include <time.h>
 
 #define MAX_NIBBLES 10
+#define NIBBLE_SPAWN_INTERVAL 2.0f
 
 static Direction current_direction = UP;
-static Nibble *nibbles[MAX_NIBBLES];
+static Nibble *nibbles[MAX_NIBBLES] = { 0 };
 static bool paused = false;
 static Color grid_line_white = {255, 255, 255, 100};
+static float nibbleSpawnTimer = 0.0f;
 
 void *inputThread(void *args) {
   // Direction current_direction = UP;
@@ -49,28 +51,6 @@ void *inputThread(void *args) {
     }
   }
   return NULL;
-}
-
-void *nibbleSpawnThread(void *args) {
-  srand((unsigned int)time(NULL));
-
-  int x = 0;
-  int y = 0;
-  while (1) {
-    if (!paused) {
-      x = rand() % 1280;
-      y = rand() % 800;
-      x = x - (x % 32) - 1;
-      y = y - (y % 32) - 1;
-      for (int i = 0; i < MAX_NIBBLES; i++) {
-        if (nibbles[i] == NULL) {
-          nibbles[i] = CreateNibble(x, y);
-          break;
-        }
-      }
-      WaitTime(2.0);
-    }
-  }
 }
 
 void DrawGridLines() {
@@ -99,6 +79,29 @@ bool EatNibble(Snake *snake, Nibble *nibble) {
   return (CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
 }
 
+void UpdateNibbleSpawning() {
+  nibbleSpawnTimer += GetFrameTime();
+
+  if (nibbleSpawnTimer < NIBBLE_SPAWN_INTERVAL) {
+    return;
+  }
+
+  nibbleSpawnTimer = 0.0f;
+
+  for (int i = 0; i < MAX_NIBBLES; i++) {
+    if (nibbles[i] == NULL) {
+      int x = GetRandomValue(0, GetScreenWidth() - 32);
+      int y = GetRandomValue(0, GetScreenHeight() - 32);
+
+      x = x - (x % 32);
+      y = y - (y % 32);
+
+      nibbles[i] = CreateNibble(x, y);
+      break;
+    }
+  }
+}
+
 int main() {
 
   pthread_t input_thread;
@@ -106,8 +109,6 @@ int main() {
 
   // Start input thread
   pthread_create(&input_thread, NULL, inputThread, NULL);
-  pthread_create(&nibbles_thread, NULL, nibbleSpawnThread, NULL);
-
   SetTargetFPS(10);
 
   Snake *snake = CreateSnake(320, 320);
@@ -123,8 +124,8 @@ int main() {
 
   // Utility function from resource_dir.h to find the resources folder and set
   // it as the current working directory so we can load from it
-  SearchAndSetResourceDir("resources");
-  Texture snake_texture = LoadTexture("snake-block.png");
+  // SearchAndSetResourceDir("resources");
+  // Texture snake_texture = LoadTexture("snake-block.png");
 
   char text_FPS[2];
   char delta_time[10];
@@ -133,10 +134,13 @@ int main() {
   while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or
                                // presses the Close button on the window
   {
+    
+  // Texture snake_texture = LoadTexture("snake-block.png");
     sprintf(delta_time, "%.2f", GetFrameTime());
     sprintf(text_FPS, "%d", GetFPS());
-
+    
     if (!paused) {
+      UpdateNibbleSpawning();
       MoveSnake(snake);
       ChangeDirection(snake, current_direction);
     }
@@ -145,6 +149,8 @@ int main() {
       if (nibbles[i] != NULL) {
         if (EatNibble(snake, nibbles[i])) {
           GrowSnake(snake);
+          free(nibbles[i]);
+          nibbles[i]=NULL;
           break;
         }
       }
@@ -189,6 +195,9 @@ int main() {
 
     DrawText(text_FPS, 150, 200, 20, WHITE);
     DrawText(delta_time, 150, 220, 20, WHITE);
+    if (paused) {
+      DrawText("PAUSED", GetScreenWidth()/2 - 140, GetScreenHeight()/2 - 80, 80, WHITE);
+    }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)
     EndDrawing();
@@ -197,7 +206,7 @@ int main() {
 
   // cleanup
   // unload our texture so it can be cleaned up
-  UnloadTexture(snake_texture);
+  // UnloadTexture(snake_texture);
   FreeSnake(snake->head);
 
   // destroy the window and cleanup the OpenGL context

@@ -28,7 +28,21 @@ Snake* CreateSnake(short x, short y) {
 }
 
 void GrowSnake(Snake* snake) {
-    snake_block_t* growth = CreateSnakeBlock(snake->tail->x, snake->tail->y+32,snake->tail->direction);
+    int x = snake->tail->x;
+    int y = snake->tail->y;
+    if (snake->tail->direction == UP) {
+        y += 32;
+    }
+    if (snake->tail->direction == DOWN) {
+        y -= 32;
+    }
+    if (snake->tail->direction == RIGHT) {
+        x -= 32;
+    }
+    if (snake->tail->direction == LEFT) {
+        x += 32;
+    }
+    snake_block_t* growth = CreateSnakeBlock(x, y,snake->tail->direction);
     snake->tail->next = growth;
     snake->tail = growth;
 }
