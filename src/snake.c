@@ -18,6 +18,7 @@ snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
     new_block->x=x;
     new_block->y=y;
     new_block->direction=direction;
+    new_block->next=NULL;
 
     return new_block;
 }
@@ -63,6 +64,9 @@ void FreeSnake(snake_block_t* head) {
 void DrawSnake(snake_block_t* head) {
     // SearchAndSetResourceDir("resources");
 	// Texture snake = LoadTexture("snake-block.png");
+    if (head == NULL) {
+        return;
+    }
 
     snake_block_t* block = head;
     while (block != NULL) {
@@ -131,4 +135,13 @@ Rectangle DeriveSnakeHeadRec(const Snake *snake) {
         32.0f,
         32.0f
     };
+}
+
+Rectangle DeriveSnakeRec(snake_block_t* block) {
+    return (Rectangle) {
+        (float)(block->x),
+        (float)(block->y),
+        32.0f,
+        32.0f
+    }
 }

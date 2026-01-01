@@ -33,4 +33,5 @@ extern void GrowSnake(Snake* snake);
 extern Snake* CreateSnake(short x, short y);
 extern void MoveSnake(Snake* snake);
 extern void ChangeDirection(Snake* snake, Direction dir);
-Rectangle DeriveSnakeHeadRec(const Snake *snake);
+extern Rectangle DeriveSnakeHeadRec(const Snake *snake);
+extern Rectangle DeriveSnakeRec(snake_block_t* block);

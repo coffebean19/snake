@@ -25,7 +25,7 @@ https://creativecommons.org/publicdomain/zero/1.0/
 #define NIBBLE_SPAWN_INTERVAL 2.0f
 
 static Direction current_direction = UP;
-static Nibble *nibbles[MAX_NIBBLES] = { 0 };
+static Nibble *nibbles[MAX_NIBBLES];
 static bool paused = false;
 static Color grid_line_white = {255, 255, 255, 100};
 static float nibbleSpawnTimer = 0.0f;
@@ -76,7 +76,24 @@ bool EatNibble(Snake *snake, Nibble *nibble) {
     return false;
   }
 
-  return (CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
+  return (
+      CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
+}
+
+bool NibbleAndSnakeCollide(Snake* snake) {
+  snake_block_t* current = snake->head;
+
+  for (int i = 0; i < MAX_NIBBLES; i++) {
+    if (CheckCollisionRecs((Rectangle) {
+        (Vector2) {
+          (float)(current->x),
+          (float)(current->y)
+        },
+      32.0f,
+      32.0f
+    }), Rectangle rec2))
+  }
+  return false;
 }
 
 void UpdateNibbleSpawning() {
@@ -105,13 +122,13 @@ void UpdateNibbleSpawning() {
 int main() {
 
   pthread_t input_thread;
-  pthread_t nibbles_thread;
 
   // Start input thread
   pthread_create(&input_thread, NULL, inputThread, NULL);
   SetTargetFPS(60);
 
   Snake *snake = CreateSnake(320, 320);
+  GrowSnake(snake);
   GrowSnake(snake);
   GrowSnake(snake);
   snake->head->direction = RIGHT;
@@ -134,11 +151,11 @@ int main() {
   while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or
                                // presses the Close button on the window
   {
-    
-  // Texture snake_texture = LoadTexture("snake-block.png");
+
+    // Texture snake_texture = LoadTexture("snake-block.png");
     sprintf(delta_time, "%.2f", GetFrameTime());
     sprintf(text_FPS, "%d", GetFPS());
-    
+
     if (!paused) {
       UpdateNibbleSpawning();
       MoveSnake(snake);
@@ -146,13 +163,14 @@ int main() {
     }
 
     for (int i = 0; i < MAX_NIBBLES; i++) {
-      if (nibbles[i] != NULL) {
-        if (EatNibble(snake, nibbles[i])) {
-          GrowSnake(snake);
-          free(nibbles[i]);
-          nibbles[i]=NULL;
-          break;
-        }
+      if (nibbles[i] != NULL && EatNibble(snake, nibbles[i])) {
+        DestroyNibble(nibbles[i]);
+        nibbles[i] = NULL;
+        printf("GrowSnake called\n");
+        GrowSnake(snake);
+        printf("GrowSnake finished\n");
+
+        break;
       }
     }
 
@@ -165,38 +183,27 @@ int main() {
     DrawGridLines();
 
     // draw some text using the default font
-    DrawText("Snake game", 10, 10, 20, WHITE);
-
-    if (IsKeyDown('A') || IsKeyDown('a')) {
-      DrawText("a", 200, 10, 20, WHITE);
-    }
-    if (IsKeyDown('S') || IsKeyDown('s')) {
-      DrawText("s", 200, 10, 20, WHITE);
-    }
-    if (IsKeyDown('D') || IsKeyDown('d')) {
-      DrawText("d", 200, 10, 20, WHITE);
-    }
-    if (IsKeyDown('W') || IsKeyDown('w')) {
-      DrawText("w", 200, 10, 20, WHITE);
-    }
-
+    
     DrawSnake(snake->head);
-
+    
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (nibbles[i] != NULL) {
         DrawNibble(nibbles[i]);
+        DrawText(TextFormat("%d", i), nibbles[i]->x, nibbles[i]->y, 10, WHITE);
         sprintf(nibbles_pos, "Exists: true (%d, %d)", nibbles[i]->x,
-                nibbles[i]->y);
-        DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
-      } else {
-        DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
+          nibbles[i]->y);
+          DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
+        } else {
+          DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
       }
     }
-
+    
+    DrawText("Snake game", 10, 10, 20, WHITE);
     DrawText(text_FPS, 150, 200, 20, WHITE);
     DrawText(delta_time, 150, 220, 20, WHITE);
     if (paused) {
-      DrawText("PAUSED", GetScreenWidth()/2 - 140, GetScreenHeight()/2 - 80, 120, WHITE);
+      DrawText("PAUSED", GetScreenWidth() / 2 - 140, GetScreenHeight() / 2 - 80,
+      120, WHITE);
     }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)

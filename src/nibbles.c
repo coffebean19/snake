@@ -19,7 +19,10 @@ Nibble* CreateNibble(int x, int y) {
 void DrawNibble(Nibble* nibble) {
     // SearchAndSetResourceDir("resources");
     // Texture nibble_img = LoadTexture("food.png");
-    // DrawTexture(nibble_img, nibble->x, nibble->y, WHITE);
+    // DrawTexture(nibble_img, nibble->x, nibble->y, WHITE);r
+    if (nibble == NULL) {
+        return;
+    }
     DrawRectangle(nibble->x, nibble->y, 33, 33, RED);
 }
 
