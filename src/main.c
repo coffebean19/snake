@@ -28,9 +28,11 @@ static Snake* snake;
 static Direction current_direction = UP;
 static Nibble *nibbles[MAX_NIBBLES];
 static bool paused = false;
-static Color grid_line_white = {255, 255, 255, 100};
+static Color grid_line_white = {255, 255, 255, 80};
 static float nibbleSpawnTimer = 0.0f;
 
+
+// Separate thread for smooth input (mostly)
 void *inputThread(void *args) {
   // Direction current_direction = UP;
   while (1) {
@@ -47,7 +49,7 @@ void *inputThread(void *args) {
     if (IsKeyDown(KEY_W)) {
       current_direction = UP;
     }
-    if (IsKeyPressed(KEY_P)) {
+    if (IsKeyDown(KEY_P)) {
       paused = !paused;
     }
   }
@@ -73,7 +75,7 @@ void DrawGridLines() {
 }
 
 bool EatNibble(Nibble *nibble) {
-  if (!snake || !snake->head || !nibble) {
+  if (!snake || !snake->head || !nibble) { // Ensure that we do not try to access uninitialized pointers, or empty pointers
     return false;
   }
 
@@ -81,7 +83,7 @@ bool EatNibble(Nibble *nibble) {
       CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
 }
 
-bool NibbleAndSnakeCollide(Rectangle nibble) {
+bool NibbleAndSnakeCollide(Rectangle nibble) { // Function to check if a nibble and the entire snake body collides
   snake_block_t *current = snake->head;
 
   while (current != NULL) {
@@ -101,7 +103,7 @@ bool NibbleAndSnakeCollide(Rectangle nibble) {
 }
 
 void UpdateNibbleSpawning() {
-  nibbleSpawnTimer += GetFrameTime();
+  nibbleSpawnTimer += GetFrameTime(); // Running time according to delta frames
 
   if (nibbleSpawnTimer < NIBBLE_SPAWN_INTERVAL) {
     return;
@@ -115,6 +117,7 @@ void UpdateNibbleSpawning() {
       int x = 0;
       int y = 0;
 
+      // This while loop ensure the nibble does not spawn on the snake body 
       while (!spawned) {
         x = GetRandomValue(0, GetScreenWidth() - 32);
         y = GetRandomValue(0, GetScreenHeight() - 32);
@@ -171,24 +174,22 @@ int main() {
                                // presses the Close button on the window
   {
 
-    // Texture snake_texture = LoadTexture("snake-block.png");
     sprintf(delta_time, "%.2f", GetFrameTime());
     sprintf(text_FPS, "%d", GetFPS());
 
+    // The pause block
     if (!paused) {
       UpdateNibbleSpawning();
       MoveSnake(snake);
       ChangeDirection(snake, current_direction);
     }
 
+    // This for block is for when snake eats a nibble
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (nibbles[i] != NULL && EatNibble(nibbles[i])) {
         DestroyNibble(nibbles[i]);
         nibbles[i] = NULL;
-        printf("GrowSnake called\n");
         GrowSnake(snake);
-        printf("GrowSnake finished\n");
-
         break;
       }
     }
@@ -201,22 +202,16 @@ int main() {
 
     DrawGridLines();
 
-    // draw some text using the default font
-
     DrawSnake(snake->head);
 
+    // Block to draw nibbles
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (nibbles[i] != NULL) {
         DrawNibble(nibbles[i]);
-        DrawText(TextFormat("%d", i), nibbles[i]->x, nibbles[i]->y, 10, WHITE);
-        sprintf(nibbles_pos, "Exists: true (%d, %d)", nibbles[i]->x,
-                nibbles[i]->y);
-        DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
-      } else {
-        DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
-      }
+      } 
     }
 
+    // Text stuff for game
     DrawText("Snake game", 10, 10, 20, WHITE);
     DrawText(text_FPS, 150, 200, 20, WHITE);
     DrawText(delta_time, 150, 220, 20, WHITE);

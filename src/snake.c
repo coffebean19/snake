@@ -11,7 +11,7 @@ float snakeMoveTimer = 0.0f;
 
 snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
     snake_block_t * new_block = (snake_block_t*)malloc(sizeof(snake_block_t));
-    if (new_block == NULL) {
+    if (new_block == NULL) { // if malloc fails
         printf("Failed to create new block.\n");
         exit(1);
     }
@@ -33,6 +33,8 @@ Snake* CreateSnake(short x, short y) {
 void GrowSnake(Snake* snake) {
     int x = snake->tail->x;
     int y = snake->tail->y;
+
+    // grid is composed of 32 by 32 blocks, thus moving 32px
     if (snake->tail->direction == UP) {
         y += 32;
     }
