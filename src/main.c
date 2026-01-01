@@ -81,17 +81,21 @@ bool EatNibble(Nibble *nibble) {
       CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
 }
 
-bool NibbleAndSnakeCollide(Nibble* nibble) {
+bool NibbleAndSnakeCollide(Rectangle nibble) {
   snake_block_t *current = snake->head;
 
   while (current != NULL) {
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (CheckCollisionRecs(DeriveSnakeRec(current),
-                             DeriveNibbleRec(nibble))) {
+                             nibble)) {
         return true;
       }
     }
-    current = current->next;
+    if (current->next) {
+      current = current->next;
+    } else {
+      return false;
+    }
   }
   return false;
 }
@@ -123,7 +127,7 @@ void UpdateNibbleSpawning() {
           32.0f
         };
 
-        if (NibbleAndSnakeCollide(nibbles[i])) {
+        if (!NibbleAndSnakeCollide(new_nibble_col)) {
           spawned = true;
         }
       }
@@ -178,7 +182,7 @@ int main() {
     }
 
     for (int i = 0; i < MAX_NIBBLES; i++) {
-      if (nibbles[i] != NULL && EatNibble(snake, nibbles[i])) {
+      if (nibbles[i] != NULL && EatNibble(nibbles[i])) {
         DestroyNibble(nibbles[i]);
         nibbles[i] = NULL;
         printf("GrowSnake called\n");
