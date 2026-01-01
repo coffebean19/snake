@@ -24,6 +24,7 @@ https://creativecommons.org/publicdomain/zero/1.0/
 #define MAX_NIBBLES 10
 #define NIBBLE_SPAWN_INTERVAL 2.0f
 
+static Snake* snake;
 static Direction current_direction = UP;
 static Nibble *nibbles[MAX_NIBBLES];
 static bool paused = false;
@@ -71,7 +72,7 @@ void DrawGridLines() {
   }
 }
 
-bool EatNibble(Snake *snake, Nibble *nibble) {
+bool EatNibble(Nibble *nibble) {
   if (!snake || !snake->head || !nibble) {
     return false;
   }
@@ -80,18 +81,17 @@ bool EatNibble(Snake *snake, Nibble *nibble) {
       CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveNibbleRec(nibble)));
 }
 
-bool NibbleAndSnakeCollide(Snake* snake) {
-  snake_block_t* current = snake->head;
+bool NibbleAndSnakeCollide(Nibble* nibble) {
+  snake_block_t *current = snake->head;
 
-  for (int i = 0; i < MAX_NIBBLES; i++) {
-    if (CheckCollisionRecs((Rectangle) {
-        (Vector2) {
-          (float)(current->x),
-          (float)(current->y)
-        },
-      32.0f,
-      32.0f
-    }), Rectangle rec2))
+  while (current != NULL) {
+    for (int i = 0; i < MAX_NIBBLES; i++) {
+      if (CheckCollisionRecs(DeriveSnakeRec(current),
+                             DeriveNibbleRec(nibble))) {
+        return true;
+      }
+    }
+    current = current->next;
   }
   return false;
 }
@@ -107,11 +107,26 @@ void UpdateNibbleSpawning() {
 
   for (int i = 0; i < MAX_NIBBLES; i++) {
     if (nibbles[i] == NULL) {
-      int x = GetRandomValue(0, GetScreenWidth() - 32);
-      int y = GetRandomValue(0, GetScreenHeight() - 32);
+      bool spawned = false;
+      int x = 0;
+      int y = 0;
 
-      x = x - (x % 32);
-      y = y - (y % 32);
+      while (!spawned) {
+        x = GetRandomValue(0, GetScreenWidth() - 32);
+        y = GetRandomValue(0, GetScreenHeight() - 32);
+        x = x - (x % 32);
+        y = y - (y % 32);
+        Rectangle new_nibble_col = (Rectangle) {
+          (float)x,
+          (float)y,
+          32.0f,
+          32.0f
+        };
+
+        if (NibbleAndSnakeCollide(nibbles[i])) {
+          spawned = true;
+        }
+      }
 
       nibbles[i] = CreateNibble(x, y);
       break;
@@ -127,7 +142,7 @@ int main() {
   pthread_create(&input_thread, NULL, inputThread, NULL);
   SetTargetFPS(60);
 
-  Snake *snake = CreateSnake(320, 320);
+  snake = CreateSnake(320, 320);
   GrowSnake(snake);
   GrowSnake(snake);
   GrowSnake(snake);
@@ -183,27 +198,27 @@ int main() {
     DrawGridLines();
 
     // draw some text using the default font
-    
+
     DrawSnake(snake->head);
-    
+
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (nibbles[i] != NULL) {
         DrawNibble(nibbles[i]);
         DrawText(TextFormat("%d", i), nibbles[i]->x, nibbles[i]->y, 10, WHITE);
         sprintf(nibbles_pos, "Exists: true (%d, %d)", nibbles[i]->x,
-          nibbles[i]->y);
-          DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
-        } else {
-          DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
+                nibbles[i]->y);
+        DrawText(nibbles_pos, 1000, 200 + i * 18, 20, WHITE);
+      } else {
+        DrawText("Exists: false", 1000, 200 + i * 18, 20, WHITE);
       }
     }
-    
+
     DrawText("Snake game", 10, 10, 20, WHITE);
     DrawText(text_FPS, 150, 200, 20, WHITE);
     DrawText(delta_time, 150, 220, 20, WHITE);
     if (paused) {
       DrawText("PAUSED", GetScreenWidth() / 2 - 140, GetScreenHeight() / 2 - 80,
-      120, WHITE);
+               120, WHITE);
     }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)

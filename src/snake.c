@@ -143,5 +143,5 @@ Rectangle DeriveSnakeRec(snake_block_t* block) {
         (float)(block->y),
         32.0f,
         32.0f
-    }
+    };
 }
