@@ -18,5 +18,5 @@ void DrawNibble(Nibble* nibble) {
     // SearchAndSetResourceDir("resources");
     // Texture nibble_img = LoadTexture("food.png");
     // DrawTexture(nibble_img, nibble->x, nibble->y, WHITE);
-    DrawRectangle(nibble->x, nibble->y, 32, 32, RED);
+    DrawRectangle(nibble->x, nibble->y, 33, 33, RED);
 }

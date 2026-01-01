@@ -72,6 +72,20 @@ void *nibbleSpawnThread(void *args) {
   }
 }
 
+void DrawGridLines() {
+  int grid_line_pos = 0;
+    while (grid_line_pos < GetScreenHeight()) {
+      DrawLine(0, grid_line_pos, GetScreenWidth(), grid_line_pos, WHITE);
+      grid_line_pos += 32;
+    }
+
+    grid_line_pos = 0;
+    while (grid_line_pos < GetScreenWidth()) {
+      DrawLine(grid_line_pos, 0, grid_line_pos, GetScreenHeight(), WHITE);
+      grid_line_pos += 32;
+    }
+}
+
 int main() {
 
   pthread_t input_thread;
@@ -86,14 +100,8 @@ int main() {
   Snake *snake = CreateSnake(320, 320);
   GrowSnake(snake);
   GrowSnake(snake);
-  GrowSnake(snake);
-  GrowSnake(snake);
   snake->head->direction = RIGHT;
 
-  Nibble *nibble1 = CreateNibble(342, 512);
-  Nibble *nibble2 = CreateNibble(600, 600);
-  Nibble *nibble3 = CreateNibble(700, 700);
-  Nibble *nibble4 = CreateNibble(800, 650);
 
   // Tell the window to use vsync and work on high DPI displays
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -127,17 +135,7 @@ int main() {
     // Setup the back buffer for drawing (clear color and depth buffers)
     ClearBackground(BLACK);
 
-    int grid_line_pos = 0;
-    while (grid_line_pos < GetScreenHeight()) {
-      DrawLine(0, grid_line_pos, GetScreenWidth(), grid_line_pos, WHITE);
-      grid_line_pos += 32;
-    }
-
-    grid_line_pos = 0;
-    while (grid_line_pos < GetScreenWidth()) {
-      DrawLine(grid_line_pos, 0, grid_line_pos, GetScreenHeight(), WHITE);
-      grid_line_pos += 32;
-    }
+    DrawGridLines();
 
     // draw some text using the default font
     DrawText("Snake game", 10, 10, 20, WHITE);
