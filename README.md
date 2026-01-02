@@ -5,7 +5,6 @@ This project was built using the Raylib quickstart template and with C.
 - update to-do list
 - Improve pause
 - Implement losing conditions  
-    - When snake eats snake
     - Touching border
 - Improve UI elements
 - Implement ability to restart
