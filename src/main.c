@@ -33,18 +33,35 @@ static bool paused = false;
 static bool lose = false;
 static Color grid_line_white = {255, 255, 255, 80};
 static float nibbleSpawnTimer = 0.0f;
+static int nibbles_eaten = 0;
 
 static Rectangle border_top = (Rectangle) { 0, 0, (float)SCREEN_WIDTH, 32.0f };
 static Rectangle border_bottom = (Rectangle) { 0, SCREEN_HEIGHT - 32, (float)SCREEN_WIDTH, 32.0f };
 static Rectangle border_left = (Rectangle) { 0, 0, 32.0f, SCREEN_HEIGHT };
 static Rectangle border_right = (Rectangle) { SCREEN_WIDTH - 32, 0, 32.0f, SCREEN_HEIGHT };
 
+void FreeAllNibbles() {
+  for (int i = 0; i < MAX_NIBBLES; i++) {
+    if (nibbles[i]) {
+      DestroyNibble(nibbles[i]);
+      nibbles[i] = NULL;
+    }
+  }
+}
 
 // Separate thread for smooth input (mostly)
 void *inputThread(void *args) {
   // Direction current_direction = UP;
   while (1) {
-
+    if (lose && IsKeyDown(KEY_R)) {
+      lose = false;
+      FreeSnake(snake->head);
+      snake = CreateSnake(320, 320);
+      GrowSnake(snake);
+      GrowSnake(snake);
+      FreeAllNibbles();
+      nibbles_eaten = 0;
+    }
     if (IsKeyDown(KEY_A)) {
       current_direction = LEFT;
     }
@@ -110,6 +127,8 @@ bool NibbleAndSnakeCollide(Rectangle nibble) { // Function to check if a nibble 
   return false;
 }
 
+
+
 void UpdateNibbleSpawning() {
   nibbleSpawnTimer += GetFrameTime(); // Running time according to delta frames
 
@@ -127,8 +146,8 @@ void UpdateNibbleSpawning() {
 
       // This while loop ensure the nibble does not spawn on the snake body 
       while (!spawned) {
-        x = GetRandomValue(0, GetScreenWidth() - 32);
-        y = GetRandomValue(0, GetScreenHeight() - 32);
+        x = GetRandomValue(32, SCREEN_WIDTH - 64);
+        y = GetRandomValue(32, SCREEN_HEIGHT - 64);
         x = x - (x % 32);
         y = y - (y % 32);
         Rectangle new_nibble_col = (Rectangle) {
@@ -184,18 +203,13 @@ int main() {
   // it as the current working directory so we can load from it
   // SearchAndSetResourceDir("resources");
   // Texture snake_texture = LoadTexture("snake-block.png");
+  char end_game_text[50];
 
-  char text_FPS[2];
-  char delta_time[10];
-  char nibbles_pos[50];
   // game loop
   while (!WindowShouldClose()) // run the loop until the user presses ESCAPE or
                                // presses the Close button on the window
   {
-
-    sprintf(delta_time, "%.2f", GetFrameTime());
-    sprintf(text_FPS, "%d", GetFPS());
-
+    
     // The pause block
     if (!paused && !lose) {
       UpdateNibbleSpawning();
@@ -205,16 +219,18 @@ int main() {
         lose = true;
       }
     }
-
+    
     // This for block is for when snake eats a nibble
     for (int i = 0; i < MAX_NIBBLES; i++) {
       if (nibbles[i] != NULL && EatNibble(nibbles[i])) {
         DestroyNibble(nibbles[i]);
         nibbles[i] = NULL;
         GrowSnake(snake);
+        nibbles_eaten++;
         break;
       }
     }
+    sprintf(end_game_text, "You ate %d nibbles!", nibbles_eaten);
 
     // drawing
     BeginDrawing();
@@ -239,16 +255,15 @@ int main() {
     DrawRectangleRec(border_right, WHITE);
 
     // Text stuff for game
-    DrawText("Snake game", 10, 10, 20, WHITE);
-    DrawText(text_FPS, 150, 200, 20, WHITE);
-    DrawText(delta_time, 150, 220, 20, WHITE);
+    DrawText("Snake game", SCREEN_WIDTH / 2 - 100, 10, 20, BLACK);
     if (paused) {
       DrawText("PAUSED", GetScreenWidth() / 2 - 140, GetScreenHeight() / 2 - 80,
                120, WHITE);
     }
     if (lose) {
-      DrawText("YOU LOST", GetScreenWidth() / 2 - 336, GetScreenHeight() / 2 - 80,
-               120, RED);
+      DrawText(end_game_text, GetScreenWidth() / 2 - 400, GetScreenHeight() / 2 - 80,
+               80, RED);
+      DrawText("Press 'r' to restart", SCREEN_WIDTH/2 - 360, SCREEN_HEIGHT/2, 60, RED);
     }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)
@@ -256,9 +271,8 @@ int main() {
   }
 
   // cleanup
-  // unload our texture so it can be cleaned up
-  // UnloadTexture(snake_texture);
   FreeSnake(snake->head);
+  FreeAllNibbles();
 
   // destroy the window and cleanup the OpenGL context
   CloseWindow();
