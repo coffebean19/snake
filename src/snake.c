@@ -147,3 +147,15 @@ Rectangle DeriveSnakeRec(snake_block_t* block) {
         32.0f
     };
 }
+
+bool SnakeEatSnake(Snake* snake) {
+    snake_block_t* current = snake->head;
+
+    while (snake->tail != current) {
+        current = current->next;
+        if (CheckCollisionRecs(DeriveSnakeHeadRec(snake), DeriveSnakeRec(current))) {
+            return true;
+        }
+    }
+    return false;
+}

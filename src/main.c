@@ -28,6 +28,7 @@ static Snake* snake;
 static Direction current_direction = UP;
 static Nibble *nibbles[MAX_NIBBLES];
 static bool paused = false;
+static bool lose = false;
 static Color grid_line_white = {255, 255, 255, 80};
 static float nibbleSpawnTimer = 0.0f;
 
@@ -178,10 +179,13 @@ int main() {
     sprintf(text_FPS, "%d", GetFPS());
 
     // The pause block
-    if (!paused) {
+    if (!paused && !lose) {
       UpdateNibbleSpawning();
       MoveSnake(snake);
       ChangeDirection(snake, current_direction);
+      if (SnakeEatSnake(snake)) {
+        lose = true;
+      }
     }
 
     // This for block is for when snake eats a nibble
@@ -218,6 +222,10 @@ int main() {
     if (paused) {
       DrawText("PAUSED", GetScreenWidth() / 2 - 140, GetScreenHeight() / 2 - 80,
                120, WHITE);
+    }
+    if (lose) {
+      DrawText("YOU LOST", GetScreenWidth() / 2 - 336, GetScreenHeight() / 2 - 80,
+               120, RED);
     }
     // end the frame and get ready for the next one  (display frame, poll input,
     // etc...)

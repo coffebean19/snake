@@ -26,7 +26,7 @@ void DrawNibble(Nibble* nibble) {
         33,
         33
     },
-      0.3f, 0, RED);
+      0.3f, 0, GREEN);
 }
 
 Rectangle DeriveNibbleRec(const Nibble *nibble) {
