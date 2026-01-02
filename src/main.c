@@ -149,6 +149,17 @@ void UpdateNibbleSpawning() {
   }
 }
 
+bool CheckSnakeAndBorderCollision() {
+  if (
+    CheckCollisionRecs(DeriveSnakeHeadRec(snake), border_bottom) ||
+    CheckCollisionRecs(DeriveSnakeHeadRec(snake), border_left)  ||
+    CheckCollisionRecs(DeriveSnakeHeadRec(snake), border_right) ||
+    CheckCollisionRecs(DeriveSnakeHeadRec(snake), border_top)  ) {
+    return true;
+  }
+  return false;
+}
+
 int main() {
 
   pthread_t input_thread;
@@ -190,7 +201,7 @@ int main() {
       UpdateNibbleSpawning();
       MoveSnake(snake);
       ChangeDirection(snake, current_direction);
-      if (SnakeEatSnake(snake)) {
+      if (SnakeEatSnake(snake) || CheckSnakeAndBorderCollision()) {
         lose = true;
       }
     }
