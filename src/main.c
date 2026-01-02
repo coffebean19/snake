@@ -23,6 +23,8 @@ https://creativecommons.org/publicdomain/zero/1.0/
 
 #define MAX_NIBBLES 10
 #define NIBBLE_SPAWN_INTERVAL 2.0f
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 800
 
 static Snake* snake;
 static Direction current_direction = UP;
@@ -31,6 +33,11 @@ static bool paused = false;
 static bool lose = false;
 static Color grid_line_white = {255, 255, 255, 80};
 static float nibbleSpawnTimer = 0.0f;
+
+static Rectangle border_top = (Rectangle) { 0, 0, (float)SCREEN_WIDTH, 32.0f };
+static Rectangle border_bottom = (Rectangle) { 0, SCREEN_HEIGHT - 32, (float)SCREEN_WIDTH, 32.0f };
+static Rectangle border_left = (Rectangle) { 0, 0, 32.0f, SCREEN_HEIGHT };
+static Rectangle border_right = (Rectangle) { SCREEN_WIDTH - 32, 0, 32.0f, SCREEN_HEIGHT };
 
 
 // Separate thread for smooth input (mostly)
@@ -160,7 +167,7 @@ int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
   // Create the window and OpenGL context
-  InitWindow(1280, 800, "Hello Raylib");
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello Raylib");
 
   // Utility function from resource_dir.h to find the resources folder and set
   // it as the current working directory so we can load from it
@@ -214,6 +221,11 @@ int main() {
         DrawNibble(nibbles[i]);
       } 
     }
+
+    DrawRectangleRec(border_top, WHITE);
+    DrawRectangleRec(border_bottom, WHITE);
+    DrawRectangleRec(border_left, WHITE);
+    DrawRectangleRec(border_right, WHITE);
 
     // Text stuff for game
     DrawText("Snake game", 10, 10, 20, WHITE);

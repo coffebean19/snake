@@ -2,7 +2,6 @@
 This project was built using the Raylib quickstart template and with C.
 
 ## To-do list
-- update to-do list
 - Improve pause
 - Implement losing conditions  
     - Touching border
