@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "snake.h"
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+// #include "resource_dir.h"	// utility header for SearchAndSetResourceDir
 #include "raylib.h"
 
-#define SNAKE_MOVE_INTERVAL 0.2f
+#define SNAKE_MOVE_INTERVAL 0.1f
 
 float snakeMoveTimer = 0.0f;
 
-snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
+snake_block_t* CreateSnakeBlock(short x, short y, Direction direction, Color color) {
     snake_block_t * new_block = (snake_block_t*)malloc(sizeof(snake_block_t));
     if (new_block == NULL) { // if malloc fails
         printf("Failed to create new block.\n");
@@ -19,13 +19,14 @@ snake_block_t* CreateSnakeBlock(short x, short y, Direction direction) {
     new_block->y=y;
     new_block->direction=direction;
     new_block->next=NULL;
+    new_block->color=color;
 
     return new_block;
 }
 
 Snake* CreateSnake(short x, short y) {
     Snake* egg = (Snake*)malloc(sizeof(Snake)); // unborn snake
-    snake_block_t* snakeling = CreateSnakeBlock(x,y,UP); // snake is born
+    snake_block_t* snakeling = CreateSnakeBlock(x,y,UP,RED); // snake is born
     egg->head = egg->tail = egg->current = snakeling; // It only has one block at creation, thus everything is set the same
     return egg;
 }
@@ -47,7 +48,7 @@ void GrowSnake(Snake* snake) {
     if (snake->tail->direction == LEFT) {
         x += 32;
     }
-    snake_block_t* growth = CreateSnakeBlock(x, y,snake->tail->direction);
+    snake_block_t* growth = CreateSnakeBlock(x, y,snake->tail->direction,MAROON);
     snake->tail->next = growth;
     snake->tail = growth;
 }
@@ -69,11 +70,10 @@ void DrawSnake(snake_block_t* head) {
     if (head == NULL) {
         return;
     }
-
     snake_block_t* block = head;
     while (block != NULL) {
         // DrawTexture(snake, block->x, block->y, WHITE);
-        DrawRectangle(block->x, block->y, 32, 32, WHITE);
+        DrawRectangle(block->x, block->y, 32, 32, block->color);
         block = block->next;
     }
 }
@@ -88,23 +88,23 @@ void MoveSnake(Snake* snake) {
 
     snakeMoveTimer = 0.0f;
 
-    int speed = 32;
+    int pixelsPerInterval = 32;
     snake_block_t* body_piece = snake->head;
     Direction cur_dir = body_piece->direction;
     Direction prev_dir = body_piece -> direction;
     while (body_piece != NULL) {
         switch (body_piece->direction) {
             case UP:
-                body_piece->y -= speed;
+                body_piece->y -= pixelsPerInterval;
                 break;            
             case DOWN:
-                body_piece->y += speed;
+                body_piece->y += pixelsPerInterval;
                 break;        
             case LEFT:
-                body_piece->x -= speed;
+                body_piece->x -= pixelsPerInterval;
                 break;        
             case RIGHT:
-                body_piece->x += speed;
+                body_piece->x += pixelsPerInterval;
                 break;        
         }
         cur_dir = body_piece->direction;

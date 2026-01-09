@@ -17,6 +17,7 @@ typedef struct snake_block_t{
     int y;
     snake_block block;
     Direction direction;
+    Color color;
     struct snake_block_t * next;  
 } snake_block_t;
 
